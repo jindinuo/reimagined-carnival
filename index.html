@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>蛊真人 · 青茅迷梦</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Noto Serif SC', serif;
+    background: #0a0a0a;
+    color: #c8b88a;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  
+  /* 开始界面 */
+  #start-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, #1a1510 0%, #0a0a0a 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  #start-screen h1 {
+    font-size: 4rem;
+    color: #8b7355;
+    text-shadow: 0 0 30px rgba(139, 115, 85, 0.5);
+    margin-bottom: 0.5rem;
+    letter-spacing: 1rem;
+  }
+  
+  #start-screen .subtitle {
+    font-size: 1.2rem;
+    color: #5a4a3a;
+    margin-bottom: 3rem;
+    letter-spacing: 0.5rem;
+  }
+  
+  .start-input {
+    background: #151210;
+    border: 1px solid #3a3020;
+    color: #c8b88a;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-family: inherit;
+    width: 300px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  
+  .start-input:focus { border-color: #8b7355; }
+  
+  .btn {
+    background: linear-gradient(180deg, #2a2218 0%, #1a1510 100%);
+    border: 1px solid #5a4a30;
+    color: #c8b88a;
+    padding: 12px 32px;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 5px;
+  }
+  
+  .btn:hover {
+    background: linear-gradient(180deg, #3a2e20 0%, #2a2218 100%);
+    border-color: #8b7355;
+    color: #e8d8a8;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(180deg, #4a3a20 0%, #2a2010 100%);
+    border-color: #8b6914;
+  }
+  
+  .btn-primary:hover {
+    border-color: #c89a30;
+    box-shadow: 0 0 15px rgba(200, 154, 48, 0.3);
+  }
+  
+  .btn-danger {
+    border-color: #8b3030;
+    color: #c87878;
+  }
+  
+  .btn-small {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+  }
+  
+  /* 主界面 */
+  #game-screen {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  .game-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    height: 100vh;
+  }
+  
+  /* 左侧状态栏 */
+  .panel-left {
+    background: #0d0b09;
+    border-right: 1px solid #2a2218;
+    padding: 15px;
+    overflow-y: auto;
+  }
+  
+  .panel-title {
+    color: #8b7355;
+    font-size: 1rem;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #2a2218;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+  
+  .player-info { margin-bottom: 20px; }
+  .player-name {
+    font-size: 1.3rem;
+    color: #d4c090;
+    margin-bottom: 5px;
+  }
+  
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 0.9rem;
+  }
+  
+  .stat-label { color: #7a6a50; }
+  .stat-value { color: #c8b88a; }
+  
+  .progress-bar {
+    height: 8px;
+    background: #1a1510;
+    border: 1px solid #2a2218;
+    margin: 4px 0 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    transition: width 0.3s;
+  }
+  
+  .progress-zhenyuan { background: linear-gradient(90deg, #2a5a8b, #4a8ac8); }
+  .progress-xiuwei { background: linear-gradient(90deg, #8b5a2a, #c88a4a); }
+  
+  /* 品质颜色 */
+  .quality-1 { color: #a0a0a0; }
+  .quality-2 { color: #50a050; }
+  .quality-3 { color: #5080d0; }
+  .quality-4 { color: #a050c0; }
+  .quality-5 { color: #d0a020; }
+  .quality-6 { color: #e04040; }
+  .quality-7 { color: #ff6060; }
+  .quality-8 { color: #ffaa00; }
+  .quality-9 { color: #ffdd44; text-shadow: 0 0 8px rgba(255,221,68,0.5); }
+  
+  /* 蛊虫列表 */
+  .gu-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 15px;
+  }
+  
+  .gu-item {
+    width: 45%;
+    background: #151210;
+    border: 1px solid #2a2218;
+    padding: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .gu-item:hover {
+    border-color: #5a4a30;
+    background: #1a1612;
+  }
+  
+  .gu-name { font-weight: 600; margin-bottom: 3px; }
+  .gu-type { font-size: 0.7rem; color: #6a5a40; }
+  
+  /* 装备栏 */
+  .equip-slot {
+    background: #151210;
+    border: 1px solid #2a2218;
+    padding: 8px;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+  }
+  
+  .equip-slot.empty { color: #4a3a2a; font-style: italic; }
+  
+  /* 中间剧情区 */
+  .panel-center {
+    display: flex;
+    flex-direction: column;
+    background: #0f0d0b;
+  }
+  
+  .story-area {
+    flex: 1;
+    padding: 30px 40px;
+    overflow-y: auto;
+    line-height: 2;
+    font-size: 1rem;
+  }
+  
+  .story-text {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .story-text p {
+    margin-bottom: 1em;
+    text-indent: 2em;
+  }
+  
+  .story-text .narration { color: #a09070; }
+  .story-text .dialogue { color: #c8b88a; }
+  .story-text .important { color: #d4a040; font-weight: 600; }
+  
+  .choices-area {
+    padding: 20px 40px;
+    border-top: 1px solid #2a2218;
+    background: #0d0b09;
+  }
+  
+  .choices-container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .choice-btn {
+    text-align: left;
+    padding: 14px 20px;
+    background: #151210;
+    border: 1px solid #2a2218;
+    color: #b8a878;
+    font-family: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .choice-btn:hover {
+    background: #1e1812;
+    border-color: #5a4a30;
+    color: #d8c898;
+    padding-left: 25px;
+  }
+  
+  /* 右侧功能区 */
+  .panel-right {
+    background: #0d0b09;
+    border-left: 1px solid #2a2218;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #2a2218;
+  }
+  
+  .tab-btn {
+    flex: 1;
+    min-width: 60px;
+    padding: 10px 5px;
+    background: none;
+    border: none;
+    color: #6a5a40;
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  
+  .tab-btn.active {
+    color: #c89a30;
+    border-bottom-color: #c89a30;
+  }
+  
+  .tab-btn:hover { color: #a08850; }
+  
+  .tab-content {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: none;
+  }
+  
+  .tab-content.active { display: block; }
+  
+  /* 背包物品 */
+  .item-list { display: flex; flex-direction: column; gap: 8px; }
+  
+  .item-card {
+    background: #151210;
+    border: 1px solid #2a2218;
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+  
+  .item-card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+  
+  .item-desc {
+    font-size: 0.75rem;
+    color: #7a6a50;
+    line-height: 1.5;
+  }
+  
+  .item-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 5px;
+  }
+  
+  /* 融合系统 */
+  .fusion-area {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .fusion-slots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+  }
+  
+  .fusion-slot {
+    width: 80px;
+    height: 80px;
+    border: 2px dashed #3a3020;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #5a4a30;
+    cursor: pointer;
+    background: #151210;
+  }
+  
+  .fusion-slot.filled {
+    border-style: solid;
+    border-color: #5a4a30;
+  }
+  
+  .fusion-plus {
+    font-size: 1.5rem;
+    color: #5a4a30;
+  }
+  
+  .fusion-result {
+    min-height: 40px;
+    padding: 10px;
+    background: #151210;
+    border: 1px solid #2a2218;
+    font-size: 0.85rem;
+    margin-top: 10px;
+  }
+  
+  /* 杀招列表 */
+  .killer-list { display: flex; flex-direction: column; gap: 10px; }
+  
+  .killer-card {
+    background: #151210;
+    border: 1px solid #3a2a1a;
+    padding: 12px;
+  }
+  
+  .killer-name {
+    color: #c89a30;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+  }
+  
+  .killer-req {
+    font-size: 0.75rem;
+    color: #7a6a50;
+    margin-bottom: 5px;
+  }
+  
+  .killer-desc {
+    font-size: 0.8rem;
+    color: #9a8a60;
+    line-height: 1.5;
+  }
+  
+  /* 副本列表 */
+  .dungeon-list { display: flex; flex-direction: column; gap: 12px; }
+  
+  .dungeon-card {
+    background: #151210;
+    border: 1px solid #2a2218;
+    padding: 12px;
+  }
+  
+  .dungeon-name {
+    color: #a08050;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+  }
+  
+  .dungeon-info {
+    font-size: 0.75rem;
+    color: #6a5a40;
+    margin-bottom: 8px;
+  }
+  
+  /* 福地 */
+  .paradise-info {
+    background: #151210;
+    border: 1px solid #2a2218;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .paradise-resource {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 0.85rem;
+  }
+  
+  .paradise-buildings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  
+  .building-card {
+    background: #151210;
+    border: 1px solid #2a2218;
+    padding: 10px;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  
+  /* 成就 */
+  .achievement-list { display: flex; flex-direction: column; gap: 8px; }
+  
+  .achievement-card {
+    background: #151210;
+    border: 1px solid #2a2218;
+    padding: 10px;
+    opacity: 0.5;
+  }
+  
+  .achievement-card.unlocked {
+    opacity: 1;
+    border-color: #8b6914;
+  }
+  
+  .achievement-name {
+    font-size: 0.9rem;
+    margin-bottom: 3px;
+  }
+  
+  .achievement-desc {
+    font-size: 0.75rem;
+    color: #6a5a40;
+  }
+  
+  /* 模态框 */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  
+  .modal-overlay.active { display: flex; }
+  
+  .modal {
+    background: #12100d;
+    border: 1px solid #3a3020;
+    padding: 25px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .modal-title {
+    color: #c89a30;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #2a2218;
+  }
+  
+  /* 战斗界面 */
+  .battle-area {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .battle-enemy {
+    margin-bottom: 30px;
+  }
+  
+  .enemy-name {
+    font-size: 1.3rem;
+    color: #c85050;
+    margin-bottom: 10px;
+  }
+  
+  .enemy-hp {
+    width: 200px;
+    margin: 0 auto 10px;
+  }
+  
+  .battle-log {
+    background: #0d0b09;
+    border: 1px solid #2a2218;
+    padding: 15px;
+    margin: 20px 0;
+    height: 120px;
+    overflow-y: auto;
+    text-align: left;
+    font-size: 0.85rem;
+    line-height: 1.8;
+  }
+  
+  .battle-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  /* Toast */
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 310px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .toast {
+    background: #1a1510;
+    border: 1px solid #5a4a30;
+    padding: 10px 20px;
+    color: #c8b88a;
+    font-size: 0.9rem;
+    animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  @keyframes fadeOut {
+    to { opacity: 0; }
+  }
+  
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0d0b09; }
+  ::-webkit-scrollbar-thumb { background: #2a2218; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3020; }
+  
+  /* 响应式 */
+  @media (max-width: 1024px) {
+    .game-layout { grid-template-columns: 200px 1fr 220px; }
+    .panel-left, .panel-right { font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 开始界面 -->
+<div id="start-screen">
+  <h1>蛊真人</h1>
+  <div class="subtitle">— 青茅迷梦 —</div>
+  <input type="text" class="start-input" id="player-name" placeholder="请输入道号" maxlength="10">
+  <div>
+    <button class="btn btn-primary" onclick="startNewGame()">踏入仙途</button>
+  </div>
+  <div style="margin-top: 20px;">
+    <button class="btn" onclick="loadGame()" id="continue-btn" style="display:none;">继续旧梦</button>
+  </div>
+  <div style="margin-top: 60px; color: #4a3a2a; font-size: 0.8rem;">
+    万物皆可为蛊 · 一念成佛一念成魔
+  </div>
+</div>
+
+<!-- 主游戏界面 -->
+<div id="game-screen">
+  <div class="game-layout">
+    
+    <!-- 左侧状态栏 -->
+    <div class="panel-left">
+      <div class="player-info">
+        <div class="player-name" id="display-name">方源</div>
+        <div class="stat-row">
+          <span class="stat-label">身份</span>
+          <span class="stat-value" id="player-identity">外姓子弟</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">修为</span>
+          <span class="stat-value quality-1" id="player-realm">一转初阶</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill progress-xiuwei" id="xiuwei-bar" style="width: 10%"></div>
+        </div>
+      </div>
+      
+      <div class="panel-title">空 窍</div>
+      <div class="stat-row">
+        <span class="stat-label">空窍品级</span>
+        <span class="stat-value" id="qiao-grade">下品海窍</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">真元</span>
+        <span class="stat-value" id="zhenyuan-text">10/100</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill progress-zhenyuan" id="zhenyuan-bar" style="width: 10%"></div>
+      </div>
+      
+      <div class="panel-title" style="margin-top: 20px;">本命蛊</div>
+      <div class="gu-item" id="mingu-display" style="width: 100%;">
+        <div class="gu-name quality-1">月光蛊</div>
+        <div class="gu-type">攻击型 · 一转</div>
+      </div>
+      
+      <div class="panel-title" style="margin-top: 20px;">蛊虫列表</div>
+      <div class="gu-list" id="gu-list"></div>
+      
+      <div class="panel-title" style="margin-top: 20px;">装 备</div>
+      <div class="equip-slot" id="equip-weapon">武器：空</div>
+      <div class="equip-slot" id="equip-armor">防具：空</div>
+      <div class="equip-slot" id="equip-accessory">饰品：空</div>
+    </div>
+    
+    <!-- 中间剧情区 -->
+    <div class="panel-center">
+      <div class="story-area" id="story-area">
+        <div class="story-text" id="story-text"></div>
+      </div>
+      <div class="choices-area">
+        <div class="choices-container" id="choices-container"></div>
+      </div>
+    </div>
+    
+    <!-- 右侧功能区 -->
+    <div class="panel-right">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('bag')">背包</button>
+        <button class="tab-btn" onclick="switchTab('fusion')">炼蛊</button>
+        <button class="tab-btn" onclick="switchTab('killer')">杀招</button>
+        <button class="tab-btn" onclick="switchTab('dungeon')">秘境</button>
+        <button class="tab-btn" onclick="switchTab('paradise')">福地</button>
+        <button class="tab-btn" onclick="switchTab('achievement')">成就</button>
+      </div>
+      
+      <div class="tab-content active" id="tab-bag">
+        <div class="panel-title">背 包</div>
+        <div class="item-list" id="bag-list"></div>
+      </div>
+      
+      <div class="tab-content" id="tab-fusion">
+        <div class="panel-title">蛊虫融合</div>
+        <div class="fusion-area">
+          <div class="fusion-slots">
+            <div class="fusion-slot" id="fusion-slot-1" onclick="selectFusionGu(0)">点击选择</div>
+            <div class="fusion-plus">+</div>
+            <div class="fusion-slot" id="fusion-slot-2" onclick="selectFusionGu(1)">点击选择</div>
+          </div>
+          <button class="btn btn-primary btn-small" onclick="doFusion()">开始融合</button>
+          <div class="fusion-result" id="fusion-result">选择两只同阶蛊虫进行融合</div>
+        </div>
+        <div style="font-size: 0.75rem; color: #6a5a40; line-height: 1.6;">
+          · 同阶蛊虫可融合，有概率升阶<br>
+          · 特定配方可合成稀有蛊虫<br>
+          · 融合失败蛊虫将损毁
+        </div>
+      </div>
+      
+      <div class="tab-content" id="tab-killer">
+        <div class="panel-title">仙道杀招</div>
+        <div class="killer-list" id="killer-list"></div>
+      </div>
+      
+      <div class="tab-content" id="tab-dungeon">
+        <div class="panel-title">秘境副本</div>
+        <div class="dungeon-list" id="dungeon-list"></div>
+      </div>
+      
+      <div class="tab-content" id="tab-paradise">
+        <div class="panel-title">洞 天 福 地</div>
+        <div id="paradise-locked" style="text-align: center; padding: 30px; color: #5a4a30; font-size: 0.85rem;">
+          尚未开辟福地<br><br>
+          突破六转蛊仙后可开辟仙窍福地
+        </div>
+        <div id="paradise-content" style="display:none;">
+          <div class="paradise-info">
+            <div class="stat-row" style="margin-bottom: 10px;">
+              <span class="stat-label">福地等级</span>
+              <span class="stat-value" id="paradise-level">下品福地</span>
+            </div>
+            <div class="paradise-resource">
+              <span>地脉之气</span>
+              <span id="resource-diqi">100</span>
+            </div>
+            <div class="paradise-resource">
+              <span>灵泉产量/日</span>
+              <span id="resource-lingquan">10</span>
+            </div>
+            <div class="paradise-resource">
+              <span>蛊材产出</span>
+              <span id="resource-gucai">少量</span>
+            </div>
+          </div>
+          <div class="panel-title">建筑</div>
+          <div class="paradise-buildings" id="paradise-buildings"></div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="tab-achievement">
+        <div class="panel-title">成就名录</div>
+        <div class="achievement-list" id="achievement-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 通用模态框 -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">提示</div>
+    <div id="modal-content"></div>
+    <div style="text-align: right; margin-top: 20px;">
+      <button class="btn" onclick="closeModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 战斗模态框 -->
+<div class="modal-overlay" id="battle-modal">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-title">遭遇战</div>
+    <div class="battle-area">
+      <div class="battle-enemy">
+        <div class="enemy-name" id="battle-enemy-name">野猪</div>
+        <div class="enemy-hp">
+          <div class="progress-bar">
+            <div class="progress-fill" id="enemy-hp-bar" style="width: 100%; background: #8b3030;"></div>
+          </div>
+          <div style="font-size: 0.8rem; color: #8b6060;" id="enemy-hp-text">100/100</div>
+        </div>
+      </div>
+      <div class="battle-log" id="battle-log"></div>
+      <div class="battle-actions" id="battle-actions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast容器 -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ==================== 游戏数据 ====================
+
+const REALMS = [
+  { name: '一转初阶', grade: 1, type: '凡' },
+  { name: '一转中阶', grade: 1, type: '凡' },
+  { name: '一转高阶', grade: 1, type: '凡' },
+  { name: '一转巅峰', grade: 1, type: '凡' },
+  { name: '二转初阶', grade: 2, type: '凡' },
+  { name: '二转中阶', grade: 2, type: '凡' },
+  { name: '二转高阶', grade: 2, type: '凡' },
+  { name: '二转巅峰', grade: 2, type: '凡' },
+  { name: '三转初阶', grade: 3, type: '凡' },
+  { name: '三转中阶', grade: 3, type: '凡' },
+  { name: '三转高阶', grade: 3, type: '凡' },
+  { name: '三转巅峰', grade: 3, type: '凡' },
+  { name: '四转初阶', grade: 4, type: '凡' },
+  { name: '四转中阶', grade: 4, type: '凡' },
+  { name: '四转高阶', grade: 4, type: '凡' },
+  { name: '四转巅峰', grade: 4, type: '凡' },
+  { name: '五转初阶', grade: 5, type: '凡' },
+  { name: '五转中阶', grade: 5, type: '凡' },
+  { name: '五转高阶', grade: 5, type: '凡' },
+  { name: '五转巅峰 · 宗师', grade: 5, type: '凡' },
+  { name: '六转蛊仙', grade: 6, type: '仙' },
+  { name: '七转蛊仙', grade: 7, type: '仙' },
+  { name: '八转蛊仙', grade: 8, type: '仙' },
+  { name: '九转尊者', grade: 9, type: '仙' }
+];
+
+const GU_DATABASE = {
+  // 一转蛊
+  yueguang: { name: '月光蛊', type: '攻击', grade: 1, damage: 15, desc: '月刃流转，斩击敌人', cost: 5 },
+  xiaoguang: { name: '小光蛊', type: '辅助', grade: 1, desc: '微弱光芒，照明用', cost: 1 },
+  shipi: { name: '石皮蛊', type: '防御', grade: 1, defense: 10, desc: '皮肤石化，提升防御', cost: 5 },
+  huajia: { name: '花脚蛊', type: '移动', grade: 1, desc: '脚步轻快，提升移速', cost: 3 },
+  wenzi: { name: '蚊子蛊', type: '侦查', grade: 1, desc: '化蚊而飞，探查敌情', cost: 2 },
+  // 二转蛊
+  yuehua: { name: '月华蛊', type: '攻击', grade: 2, damage: 30, desc: '月华倾泻，范围伤害', cost: 12 },
+  tiepi: { name: '铁皮蛊', type: '防御', grade: 2, defense: 25, desc: '肤如铁皮，大幅提升防御', cost: 10 },
+  leimao: { name: '雷毛蛊', type: '攻击', grade: 2, damage: 25, desc: '雷电附毛，麻痹敌人', cost: 10 },
+  // 三转蛊
+  yuelun: { name: '月轮蛊', type: '攻击', grade: 3, damage: 55, desc: '满月为轮，绞杀一切', cost: 20 },
+  gangqi: { name: '罡气蛊', type: '防御', grade: 3, defense: 45, desc: '罡气护体，刀枪不入', cost: 18 },
+  // 四转蛊
+  canyue: { name: '残月蛊', type: '攻击', grade: 4, damage: 90, desc: '残月如钩，勾魂夺命', cost: 35 },
+  // 五转蛊
+  haoyue: { name: '皓月蛊', type: '攻击', grade: 5, damage: 150, desc: '皓月当空，光耀万物', cost: 60 },
+  // 六转仙蛊
+  chunqiu: { name: '春秋蝉', type: '特殊', grade: 6, desc: '时光倒流，重回过去', cost: 999, special: 'rebirth' },
+  // 特殊
+  zhizun: { name: '至尊仙胎蛊', type: '特殊', grade: 9, desc: '传说中的九转仙蛊，十大奇蛊之首', cost: 9999 }
+};
+
+// 融合配方
+const FUSION_RECIPES = {
+  'yueguang+yueguang': { result: 'yuehua', rate: 0.6, name: '月华蛊' },
+  'shipi+shipi': { result: 'tiepi', rate: 0.6, name: '铁皮蛊' },
+  'yuehua+yuehua': { result: 'yuelun', rate: 0.5, name: '月轮蛊' },
+  'tiepi+gangqi': { result: 'gangqi', rate: 0.4, name: '罡气蛊' },
+  'yuelun+yuelun': { result: 'canyue', rate: 0.3, name: '残月蛊' }
+};
+
+// 杀招
+const KILLER_SKILLS = [
+  { id: 'yuehua_zhan', name: '月华斩', req: ['yuehua', 'xiaoguang'], damage: 80, cost: 20, desc: '月华聚刃，一击斩出', grade: 2 },
+  { id: 'yue_lunhui', name: '月轮回', req: ['yuelun', 'yuehua'], damage: 150, cost: 40, desc: '三轮月刃回旋绞杀', grade: 3 },
+  { id: 'gangyue_shield', name: '罡月盾', req: ['gangqi', 'yueguang'], defense: 80, cost: 30, desc: '罡气凝月，攻防一体', grade: 3 },
+  { id: 'canxue_dao', name: '残月刀', req: ['canyue', 'yuelun'], damage: 250, cost: 60, desc: '残月化刀，斩破虚空', grade: 4 }
+];
+
+// 装备
+const EQUIP_DATABASE = {
+  muyu_dao: { name: '木羽刀', slot: 'weapon', quality: 1, atk: 5, desc: '木质短刀，聊胜于无' },
+  tieshu_qiang: { name: '铁鼠枪', slot: 'weapon', quality: 2, atk: 12, desc: '精铁打造的短枪' },
+  shiying_jia: { name: '石英甲', slot: 'armor', quality: 2, def: 15, desc: '石英片缀成的轻甲' },
+  yueya_pei: { name: '月牙佩', slot: 'accessory', quality: 2, mp: 20, desc: '月牙形玉佩，温养空窍' },
+  hanbing_jian: { name: '寒冰剑', slot: 'weapon', quality: 3, atk: 25, desc: '千年寒冰所铸灵剑' },
+  heijia: { name: '玄铁甲', slot: 'armor', quality: 3, def: 30, desc: '玄铁重铠，防御惊人' }
+};
+
+// 副本
+const DUNGEONS = [
+  {
+    id: 'qingmao_shan',
+    name: '青茅山深处',
+    desc: '古月山寨后山，妖兽横行',
+    reqRealm: 0,
+    enemies: [
+      { name: '野狼', hp: 50, atk: 8, exp: 10 },
+      { name: '毒蟾', hp: 80, atk: 12, exp: 15 },
+      { name: '青毛兽', hp: 120, atk: 18, exp: 25 }
+    ],
+    rewards: { exp: 50, yuanshi: 30, guChance: 0.3 }
+  },
+  {
+    id: 'sanwang_shan',
+    name: '三王山',
+    desc: '三位蛊仙葬身之地，危机与机遇并存',
+    reqRealm: 8,
+    enemies: [
+      { name: '石像兵', hp: 200, atk: 25, exp: 40 },
+      { name: '阴灵', hp: 150, atk: 35, exp: 50 },
+      { name: '守山傀儡', hp: 400, atk: 40, exp: 100 }
+    ],
+    rewards: { exp: 200, yuanshi: 150, guChance: 0.5 }
+  },
+  {
+    id: 'langya_land',
+    name: '琅琊福地',
+    desc: '毛民之地，藏有无数炼蛊秘典',
+    reqRealm: 15,
+    enemies: [
+      { name: '毛民战士', hp: 300, atk: 40, exp: 80 },
+      { name: '毛民炼师', hp: 250, atk: 55, exp: 100 },
+      { name: '琅琊地灵', hp: 800, atk: 60, exp: 300 }
+    ],
+    rewards: { exp: 500, yuanshi: 400, guChance: 0.7 }
+  }
+];
+
+// 成就
+const ACHIEVEMENTS = [
+  { id: 'first_gu', name: '初窥蛊道', desc: '获得第一只蛊虫', reward: '真元上限+10' },
+  { id: 'second_turn', name: '二转之境', desc: '突破二转修为', reward: '空窍扩容' },
+  { id: 'first_fusion', name: '炼蛊新手', desc: '首次成功融合蛊虫', reward: '融合成功率+5%' },
+  { id: 'first_killer', name: '杀招初成', desc: '掌握第一道仙道杀招', reward: '杀招威力+10%' },
+  { id: 'dungeon_clear', name: '秘境探险者', desc: '通关第一个副本', reward: '副本奖励+20%' },
+  { id: 'gu_xian', name: '一朝成仙', desc: '突破六转，成就蛊仙', reward: '开辟福地' },
+  { id: 'sanren', name: '散修逍遥', desc: '走散修路线通关', reward: '散修结局' },
+  { id: 'modao', name: '魔道巨擘', desc: '走魔道路线通关', reward: '魔道结局' },
+  { id: 'zhengdao', name: '正道楷模', desc: '走正道路线通关', reward: '正道结局' },
+  { id: 'zunzhe', name: '九转尊者', desc: '成就九转尊者之位', reward: '尊者结局' }
+];
+
+// 剧情
+const STORY = {
+  start: {
+    text: `<p class="narration">大梦谁先觉，平生我自知。</p>
+    <p class="narration">你睁开眼，发现自己躺在一间简陋的木屋中。屋外阴雨绵绵，空气中弥漫着一股淡淡的青草味。</p>
+    <p class="narration">记忆如潮水般涌来——你穿越了，来到这个名为"蛊"的世界。这里的人们以养蛊、炼蛊、用蛊为修行之道，强者可翻山倒海，长生不老。</p>
+    <p class="narration">而你现在的身份，是青茅山古月一族的外姓子弟，父母双亡，资质平庸，在族中地位低下。</p>
+    <p class="narration">今日，是族中一年一度的<strong class="important">开窍大典</strong>。只有开窍成功，才能正式踏上蛊修之路。</p>`,
+    choices: [
+      { text: '前往议事堂参加开窍大典', next: 'kaiqiao' },
+      { text: '先在房间里搜索一番', next: 'search_room' }
+    ]
+  },
+  
+  search_room: {
+    text: `<p class="narration">你在简陋的房间里翻找起来。一张破床，一张木桌，一个旧箱子。</p>
+    <p class="narration">箱子里只有几件破旧的衣服，和几块零散的元石——这是这个世界的货币，也是修炼资源。</p>
+    <p class="narration">忽然，你在床板的缝隙里摸到了一个硬硬的东西。掏出来一看，是一枚古朴的黑色蝉形玉佩，触手冰凉，不知是什么材质。</p>
+    <p class="important">【获得：神秘黑蝉玉佩 ×1】</p>
+    <p class="narration">你隐约觉得这东西不简单，但现在来不及细想。开窍大典就要开始了。</p>`,
+    choices: [
+      { text: '收起玉佩，前往议事堂', next: 'kaiqiao' }
+    ],
+    onEnter: function(s) {
+      addItem('mysterious_cicada', '神秘黑蝉玉佩', '特殊物品', '一枚古朴的黑色蝉形玉佩，触手冰凉，似乎藏着什么秘密');
+    }
+  },
+  
+  kaiqiao: {
+    text: `<p class="narration">古月山寨的议事堂前人山人海，数百名少年少女翘首以盼。高台之上，几位族中高层端坐，为首的是家主古月博。</p>
+    <p class="narration">"开窍大典，开始！"随着一声令下，少年们依次走上台，将手放在开窍石上。</p>
+    <p class="narration">有人成功，空窍开辟，面露喜色；有人失败，资质不足，黯然退场。</p>
+    <p class="narration">终于轮到你了。你走上前，将右手按在开窍石上。</p>
+    <p class="narration">一股奇异的力量涌入体内，在你的丹田处开辟出一片小小的空间——你的<strong class="important">空窍</strong>，开辟成功了！</p>
+    <p class="narration">只是……你的空窍品级似乎不高，只是下品海窍，真元容量有限，未来的修行之路恐怕会很艰难。</p>
+    <p class="important">【空窍开辟成功！下品海窍，真元上限100】</p>
+    <p class="narration">这时，家主古月博开口了："开窍成功者，可领取一只本命蛊。尔等上前挑选。"</p>`,
+    choices: [
+      { text: '挑选月光蛊（攻击型）', next: 'get_yueguang', condition: null },
+      { text: '挑选石皮蛊（防御型）', next: 'get_shipi' },
+      { text: '挑选花脚蛊（移动型）', next: 'get_huajia' }
+    ]
+  },
+  
+  get_yueguang: {
+    text: `<p class="narration">你选择了一只月光蛊。这只蛊虫形如弯月，通体银白，散发着淡淡的光晕。</p>
+    <p class="narration">月光蛊是一转攻击蛊，能发出月刃攻击敌人，是古月一族的标志性蛊虫。</p>
+    <p class="important">【获得本命蛊：月光蛊（一转·攻击型）】</p>
+    <p class="narration">将月光蛊收入空窍温养，你正式成为了一名一转初阶蛊师。</p>
+    <p class="narration">就在这时，一个尖嘴猴腮的少年走了过来，一脸不屑地看着你："哼，外姓子弟也配拿月光蛊？简直是暴殄天物！"</p>
+    <p class="narration">来人是古月赤城，族中嫡系子弟，一向看不起外姓人。</p>`,
+    choices: [
+      { text: '忍气吞声，转身离开', next: 'tolerance' },
+      { text: '出言反驳，针锋相对', next: 'argue' },
+      { text: '直接动手，给他点教训', next: 'fight_chicheng' }
+    ],
+    onEnter: function(s) {
+      addGu('yueguang');
+      s.mingu = 'yueguang';
+      unlockAchievement('first_gu');
+      updateUI();
+    }
+  },
+  
+  get_shipi: {
+    text: `<p class="narration">你选择了一只石皮蛊。这只蛊虫灰扑扑的，毫不起眼，但防御能力在一转蛊中堪称优秀。</p>
+    <p class="important">【获得本命蛊：石皮蛊（一转·防御型）】</p>
+    <p class="narration">将石皮蛊收入空窍温养，你正式成为了一名一转初阶蛊师。</p>
+    <p class="narration">就在这时，一个尖嘴猴腮的少年走了过来，一脸不屑："果然是外姓子弟，就配选这种垃圾蛊。"</p>
+    <p class="narration">来人是古月赤城，族中嫡系子弟。</p>`,
+    choices: [
+      { text: '忍气吞声，转身离开', next: 'tolerance' },
+      { text: '出言反驳，针锋相对', next: 'argue' }
+    ],
+    onEnter: function(s) {
+      addGu('shipi');
+      s.mingu = 'shipi';
+      unlockAchievement('first_gu');
+      updateUI();
+    }
+  },
+  
+  get_huajia: {
+    text: `<p class="narration">你选择了一只花脚蛊。这只蛊虫能提升移动速度，虽然战斗能力不强，但胜在灵活，保命一流。</p>
+    <p class="important">【获得本命蛊：花脚蛊（一转·移动型）】</p>
+    <p class="narration">将花脚蛊收入空窍温养，你正式成为了一名一转初阶蛊师。</p>
+    <p class="narration">旁边传来几声嗤笑："选花脚蛊？这是打算一辈子逃跑吗？"</p>`,
+    choices: [
+      { text: '不以为意，转身离开', next: 'tolerance' }
+    ],
+    onEnter: function(s) {
+      addGu('huajia');
+      s.mingu = 'huajia';
+      unlockAchievement('first_gu');
+      updateUI();
+    }
+  },
+  
+  tolerance: {
+    text: `<p class="narration">你选择了隐忍。毕竟初来乍到，实力低微，不宜惹是生非。</p>
+    <p class="narration">但你心中暗暗发誓：今日之辱，他日必百倍奉还！</p>
+    <p class="narration">回到住处，你开始规划未来。在这个弱肉强食的世界，只有实力才是硬道理。</p>
+    <p class="narration">接下来，你打算怎么做？</p>`,
+    choices: [
+      { text: '闭关修炼，提升修为', next: 'cultivate_1' },
+      { text: '去后山历练，猎杀妖兽', next: 'houshan_start' },
+      { text: '在寨中打听消息，寻找机缘', next: 'inquire' }
+    ]
+  },
+  
+  argue: {
+    text: `<p class="narration">你冷冷道："蛊虫无高低，只有使用者有强弱。倒是古月兄，堂堂嫡系子弟，只会在这里逞口舌之利？"</p>
+    <p class="narration">古月赤城脸色一变："好胆！一个外姓废物也敢跟我这么说话？"</p>
+    <p class="narration">眼看就要起冲突，一位族老出声喝止："够了！大典之上，成何体统！"</p>
+    <p class="narration">古月赤城恨恨地瞪了你一眼，拂袖而去。你知道，这个梁子算是结下了。</p>`,
+    choices: [
+      { text: '返回住处，从长计议', next: 'tolerance' }
+    ]
+  },
+  
+  fight_chicheng: {
+    text: `<p class="narration">你二话不说，直接催动月光蛊！一道银白月刃朝古月赤城斩去！</p>
+    <p class="narration">古月赤城大惊，没想到你竟敢直接动手，慌忙催动防御蛊抵挡。但他刚刚开窍，哪里是你的对手？</p>
+    <p class="narration">月刃斩在他的胳膊上，留下一道深深的伤口。</p>
+    <p class="narration">"你！你敢伤我！"古月赤城又惊又怒。</p>
+    <p class="narration">族老们立刻出手制止。当众斗殴，尤其是伤到嫡系子弟，这可不是小事。</p>
+    <p class="narration">最终，你被罚禁闭三月，扣除半年份例。但经此一战，寨中再也没人敢轻易招惹你了。</p>
+    <p class="important">【声望：魔道倾向+10】</p>`,
+    choices: [
+      { text: '禁闭结束后，继续修行', next: 'tolerance' }
+    ],
+    onEnter: function(s) {
+      s.karma = (s.karma || 0) + 10;
+    }
+  },
+  
+  cultivate_1: {
+    text: `<p class="narration">你盘坐在床上，五心朝天，开始运转功法吸纳天地元气。</p>
+    <p class="narration">元石中的能量缓缓融入空窍，真元一点点变得充盈、凝练。</p>
+    <p class="narration">这个世界的修炼，本质上就是不断壮大空窍中的真元，量变引发质变，从而突破境界。</p>
+    <p class="narration">一夜修炼过去，你感觉真元凝练了不少。</p>
+    <p class="important">【修为进度+20%】</p>`,
+    choices: [
+      { text: '继续闭关修炼', next: 'cultivate_2' },
+      { text: '出关，去后山历练', next: 'houshan_start' },
+      { text: '去族中藏经阁看看', next: 'cangjingge' }
+    ],
+    onEnter: function(s) {
+      s.xiuweiProgress = Math.min(100, (s.xiuweiProgress || 0) + 20);
+      updateUI();
+    }
+  },
+  
+  cultivate_2: {
+    text: `<p class="narration">你继续沉心修炼。日复一日，空窍中的真元越来越凝练。</p>
+    <p class="narration">终于，在第七天，你感觉空窍微微一震——突破了！</p>
+    <p class="important">【修为突破：一转初阶 → 一转中阶】</p>
+    <p class="narration">你握了握拳，感觉力量比之前强了不少。但这还远远不够。</p>`,
+    choices: [
+      { text: '继续修炼，冲击更高境界', next: 'cultivate_3' },
+      { text: '出关历练，实战出真知', next: 'houshan_start' },
+      { text: '去集市看看有没有好东西', next: 'market' }
+    ],
+    onEnter: function(s) {
+      if (s.realm < 1) {
+        s.realm = 1;
+        s.xiuweiProgress = 0;
+        updateUI();
+      }
+    }
+  },
+  
+  cultivate_3: {
+    text: `<p class="narration">你继续闭关苦修。但越往后，修炼速度越慢。没有足够的资源，单靠苦修进步有限。</p>
+    <p class="narration">你明白，是时候出去历练了。猎杀妖兽、寻找天材地宝，才是快速提升实力的途径。</p>
+    <p class="important">【修为进度+15%】</p>`,
+    choices: [
+      { text: '前往后山历练', next: 'houshan_start' },
+      { text: '去集市采购些物资', next: 'market' }
+    ],
+    onEnter: function(s) {
+      s.xiuweiProgress = Math.min(100, (s.xiuweiProgress || 0) + 15);
+      updateUI();
+    }
+  },
+  
+  houshan_start: {
+    text: `<p class="narration">你来到青茅山后山。这里妖兽横行，危险重重，但也蕴藏着机缘。</p>
+    <p class="narration">山林间草木茂盛，虫鸣鸟叫不绝于耳。你小心翼翼地深入，随时准备催动蛊虫应战。</p>
+    <p class="narration">不多时，前方草丛传来窸窣声——一只野狼窜了出来，绿油油的眼睛死死盯着你！</p>`,
+    choices: [
+      { text: '迎战！催动蛊虫击杀野狼', next: 'battle_wolf' },
+      { text: '谨慎起见，绕道而行', next: 'houshan_deep' }
+    ]
+  },
+  
+  battle_wolf: {
+    text: `<p class="narration">你与野狼展开激战！</p>`,
+    choices: [],
+    battle: { enemy: '野狼', hp: 50, atk: 8, onWin: 'wolf_win' }
+  },
+  
+  wolf_win: {
+    text: `<p class="narration">野狼倒在地上，不再动弹。你微微喘气，这是你来到这个世界斩杀的第一只妖兽。</p>
+    <p class="narration">从野狼身上可以剥取一些材料，虽然不值钱，但聊胜于无。</p>
+    <p class="important">【获得：狼皮 ×1，经验值+10】</p>
+    <p class="narration">继续深入，或许能遇到更多机缘，也可能遇到更大的危险。</p>`,
+    choices: [
+      { text: '继续深入后山', next: 'houshan_deep' },
+      { text: '见好就收，返回山寨', next: 'back_village' }
+    ],
+    onEnter: function(s) {
+      addItem('wolf_pelt', '狼皮', '材料', '普通野狼的皮毛，可卖钱');
+      gainExp(10);
+    }
+  },
+  
+  houshan_deep: {
+    text: `<p class="narration">你继续深入后山。越往里走，树木越茂密，光线越昏暗。</p>
+    <p class="narration">忽然，你发现前方有一个隐蔽的山洞，洞口杂草丛生，似乎很久没人来过了。</p>
+    <p class="narration">山洞中隐隐传来一股奇异的气息，似乎藏着什么东西。</p>`,
+    choices: [
+      { text: '进入山洞探索', next: 'cave_enter' },
+      { text: '太危险了，还是离开吧', next: 'back_village' }
+    ]
+  },
+  
+  cave_enter: {
+    text: `<p class="narration">你小心翼翼地走进山洞。洞内比想象中宽敞，石壁上长着一些发光的苔藓，提供了微弱的光亮。</p>
+    <p class="narration">走到洞底，你发现了一具枯骨，坐在石台上，似乎是很久以前死在这里的一位蛊师。</p>
+    <p class="narration">枯骨手中握着一只小小的蛊虫，已经石化，但依稀能看出是一只<strong class="important">小光蛊</strong>。</p>
+    <p class="narration">旁边还有一个破旧的兽皮袋，里面装着几块元石和一本泛黄的小册子。</p>`,
+    choices: [
+      { text: '搜刮所有东西', next: 'cave_loot' },
+      { text: '只拿元石，尊重死者', next: 'cave_respect' }
+    ]
+  },
+  
+  cave_loot: {
+    text: `<p class="narration">你毫不客气地将所有东西收入囊中。在这个世界，对死人客气毫无意义。</p>
+    <p class="important">【获得：小光蛊 ×1】</p>
+    <p class="important">【获得：元石 ×20】</p>
+    <p class="important">【获得：残缺蛊经 ×1】</p>
+    <p class="narration">那本残缺蛊经上记录了一些基础蛊虫的饲养方法和一道简单的杀招配方，对你颇有价值。</p>
+    <p class="important">【魔道倾向+5】</p>`,
+    choices: [
+      { text: '离开山洞', next: 'back_village' }
+    ],
+    onEnter: function(s) {
+      addGu('xiaoguang');
+      s.yuanshi = (s.yuanshi || 0) + 20;
+      addItem('canque_gujing', '残缺蛊经', '秘籍', '记录了基础养蛊之法和一道杀招配方');
+      s.karma = (s.karma || 0) + 5;
+      updateUI();
+    }
+  },
+  
+  cave_respect: {
+    text: `<p class="narration">你只取了元石，对枯骨躬身一礼。死者为大，这是你的原则。</p>
+    <p class="narration">就在你转身离开时，那只石化的小光蛊忽然亮起微光，化作一道流光飞入你的空窍！</p>
+    <p class="important">【获得：小光蛊 ×1（有灵）】</p>
+    <p class="important">【获得：元石 ×20】</p>
+    <p class="important">【正道倾向+10】</p>
+    <p class="narration">你心中惊讶，看来这只小光蛊感应到了你的善意，主动认主了。有灵的蛊虫，威力可比普通蛊虫强上不少。</p>`,
+    choices: [
+      { text: '离开山洞', next: 'back_village' }
+    ],
+    onEnter: function(s) {
+      addGu('xiaoguang');
+      s.yuanshi = (s.yuanshi || 0) + 20;
+      s.karma = (s.karma || 0) - 10;
+      updateUI();
+    }
+  },
+  
+  back_village: {
+    text: `<p class="narration">你安全返回了古月山寨。一番历练，收获不小。</p>
+    <p class="narration">接下来，你打算如何安排？</p>`,
+    choices: [
+      { text: '闭关修炼，消化收获', next: 'cultivate_1' },
+      { text: '去集市出售材料', next: 'market' },
+      { text: '在寨中打探消息', next: 'inquire' }
+    ]
+  },
+  
+  inquire: {
+    text: `<p class="narration">你在寨中四处走动，有意无意地打听各种消息。</p>
+    <p class="narration">从族人们的闲谈中，你了解到不少事情：</p>
+    <p class="narration">· 族中藏经阁收藏了许多蛊修典籍，有功弟子才能进入。</p>
+    <p class="narration">· 后山深处据说有三王山遗迹，藏着上古蛊仙的传承，但危险无比。</p>
+    <p class="narration">· 三个月后，将举办族比，名列前茅者有重奖。</p>
+    <p class="narration">· 传闻百年前，有一位叫"幽魂魔尊"的大能在青茅山留下过传承……</p>
+    <p class="narration">还有一则隐秘的消息：族中禁地藏着一只六转仙蛊——<strong class="important">春秋蝉</strong>，能令人时光倒流，重回过去。但只是传说，没人见过。</p>`,
+    choices: [
+      { text: '对春秋蝉很感兴趣，想办法打探更多', next: 'chunqiu_inquire' },
+      { text: '去藏经阁看看', next: 'cangjingge' },
+      { text: '准备三个月后的族比', next: 'zubi_prepare' }
+    ]
+  },
+  
+  chunqiu_inquire: {
+    text: `<p class="narration">你开始有意地打听春秋蝉的消息。但这似乎是族中最高机密，没人愿意多谈。</p>
+    <p class="narration">几经周折，你才从一个醉醺醺的老酒鬼口中听到了只言片语：</p>
+    <p class="narration">"春秋蝉……在禁地……只有家主和几位族老知道具体位置……那可是仙蛊啊……"</p>
+    <p class="narration">说完，老酒鬼就醉倒了，再问什么都不说。</p>
+    <p class="narration">你心中微动。如果能得到春秋蝉，就等于有了重来一次的机会，无论做错什么都可以反悔……</p>
+    <p class="narration">但盗取仙蛊，可是灭族大罪。</p>`,
+    choices: [
+      { text: '暗中谋划，寻找盗取春秋蝉的机会', next: 'steal_chunqiu_plan', requireKarma: 5 },
+      { text: '太危险了，还是老老实实修炼吧', next: 'tolerance' }
+    ]
+  },
+  
+  cangjingge: {
+    text: `<p class="narration">你来到藏经阁。守门的老者瞥了你一眼："外姓子弟？有功勋才能进。"</p>
+    <p class="narration">你拿出历练时获得的妖兽材料，缴纳了入门费用，老者才放你进去。</p>
+    <p class="narration">藏经阁内书架林立，摆满了各种蛊修典籍。你走马观花地看着：</p>
+    <p class="narration">《基础炼蛊术》《常见蛊虫图鉴》《空窍修行要旨》《杀招入门》……</p>
+    <p class="narration">你只能在第一层阅读，更高深的典籍需要更高的身份权限。</p>`,
+    choices: [
+      { text: '研读炼蛊之术', next: 'study_liangu' },
+      { text: '研读杀招之法', next: 'study_shazhao' },
+      { text: '离开藏经阁', next: 'back_village' }
+    ]
+  },
+  
+  study_liangu: {
+    text: `<p class="narration">你潜心研读《基础炼蛊术》，对蛊虫融合有了系统的认识。</p>
+    <p class="narration">原来蛊虫融合并非随意而为，有特定的配方和法门。两只同阶蛊虫融合，有概率升阶；特定配方则能合成特定蛊虫。</p>
+    <p class="narration">你还记下了几个简单的融合配方。</p>
+    <p class="important">【学会：基础炼蛊术】</p>
+    <p class="important">【融合成功率+10%】</p>`,
+    choices: [
+      { text: '继续研读其他典籍', next: 'cangjingge' },
+      { text: '离开藏经阁', next: 'back_village' }
+    ],
+    onEnter: function(s) {
+      s.fusionBonus = (s.fusionBonus || 0) + 0.1;
+      unlockAchievement('first_fusion');
+    }
+  },
+  
+  study_shazhao: {
+    text: `<p class="narration">你翻阅《杀招入门》，了解到仙道杀招的奥秘。</p>
+    <p class="narration">所谓杀招，就是将多只蛊虫的力量组合起来，爆发出远超单只蛊虫的威力。但杀招对蛊虫搭配和真元操控要求极高，稍有不慎就会反噬。</p>
+    <p class="narration">你记下了一道基础杀招——月华斩，需要月华蛊配合小光蛊催动。</p>
+    <p class="important">【习得杀招：月华斩（需月华蛊+小光蛊）】</p>`,
+    choices: [
+      { text: '继续研读', next: 'cangjingge' },
+      { text: '离开藏经阁', next: 'back_village' }
+    ],
+    onEnter: function(s) {
+      if (!s.learnedKillers) s.learnedKillers = [];
+      if (!s.learnedKillers.includes('yuehua_zhan')) {
+        s.learnedKillers.push('yuehua_zhan');
+      }
+      renderKillers();
+    }
+  },
+  
+  market: {
+    text: `<p class="narration">山寨的集市上颇为热闹，各族弟子摆摊交易，蛊虫、材料、元石应有尽有。</p>
+    <p class="narration">你逛了一圈，发现了几个值得注意的摊位：</p>
+    <p class="narration">· 一个老者在卖各式装备，品质看起来还不错。</p>
+    <p class="narration">· 一个少女摆摊收售蛊虫，品种繁多。</p>
+    <p class="narration">· 角落里还有个神秘商人，神神秘秘的，不知卖些什么。</p>`,
+    choices: [
+      { text: '去装备摊看看', next: 'shop_weapon' },
+      { text: '去蛊虫摊看看', next: 'shop_gu' },
+      { text: '去神秘商人那里', next: 'shop_mystery' },
+      { text: '离开集市', next: 'back_village' }
+    ]
+  },
+  
+  shop_weapon: {
+    text: `<p class="narration">装备摊上摆着各种武器防具。老者笑眯眯地招呼你："小兄弟，看看？都是好东西。"</p>
+    <p class="narration">你扫了一眼：</p>
+    <p class="narration">· 木羽刀 — 15元石</p>
+    <p class="narration">· 石英甲 — 25元石</p>
+    <p class="narration">· 月牙佩 — 30元石</p>`,
+    choices: [
+      { text: '购买木羽刀（15元石）', next: 'buy_muyu', cost: { yuanshi: 15 } },
+      { text: '购买石英甲（25元石）', next: 'buy_shiying', cost: { yuanshi: 25 } },
+      { text: '购买月牙佩（30元石）', next: 'buy_yueya', cost: { yuanshi: 30 } },
+      { text: '不买了，离开', next: 'market' }
+    ]
+  },
+  
+  buy_muyu: {
+    text: `<p class="narration">你花15元石买下了木羽刀。刀身轻盈，适合蛊师配合蛊虫使用。</p>
+    <p class="important">【获得装备：木羽刀（武器·凡品）】</p>`,
+    choices: [
+      { text: '继续逛', next: 'market' }
+    ],
+    onEnter: function(s) {
+      if ((s.yuanshi || 0) >= 15) {
+        s.yuanshi -= 15;
+        equipItem('muyu_dao');
+      }
+    }
+  },
+  
+  buy_shiying: {
+    text: `<p class="narration">你花25元石买下了石英甲。虽然不算坚固，但聊胜于无。</p>
+    <p class="important">【获得装备：石英甲（防具·良品）】</p>`,
+    choices: [
+      { text: '继续逛', next: 'market' }
+    ],
+    onEnter: function(s) {
+      if ((s.yuanshi || 0) >= 25) {
+        s.yuanshi -= 25;
+        equipItem('shiying_jia');
+      }
+    }
+  },
+  
+  buy_yueya: {
+    text: `<p class="narration">你花30元石买下了月牙佩。玉佩温润，据说能温养空窍，提升真元上限。</p>
+    <p class="important">【获得装备：月牙佩（饰品·良品）】</p>
+    <p class="important">【真元上限+20】</p>`,
+    choices: [
+      { text: '继续逛', next: 'market' }
+    ],
+    onEnter: function(s) {
+      if ((s.yuanshi || 0) >= 30) {
+        s.yuanshi -= 30;
+        equipItem('yueya_pei');
+        s.maxZhenyuan += 20;
+      }
+    }
+  },
+  
+  shop_gu: {
+    text: `<p class="narration">蛊虫摊上摆着一个个玉盒，里面装着各种蛊虫。少女介绍道："都是一转蛊，价格公道。"</p>
+    <p class="narration">· 月光蛊 — 20元石</p>
+    <p class="narration">· 石皮蛊 — 18元石</p>
+    <p class="narration">· 蚊子蛊 — 12元石</p>`,
+    choices: [
+      { text: '买一只月光蛊（20元石）', next: 'buy_yueguang2' },
+      { text: '买一只石皮蛊（18元石）', next: 'buy_shipi2' },
+      { text: '离开', next: 'market' }
+    ]
+  },
+  
+  buy_yueguang2: {
+    text: `<p class="narration">你买下一只月光蛊，可以留着融合用。</p>
+    <p class="important">【获得：月光蛊 ×1】</p>`,
+    choices: [{ text: '继续逛', next: 'market' }],
+    onEnter: function(s) {
+      if ((s.yuanshi || 0) >= 20) {
+        s.yuanshi -= 20;
+        addGu('yueguang');
+      }
+    }
+  },
+  
+  buy_shipi2: {
+    text: `<p class="narration">你买下一只石皮蛊。</p>
+    <p class="important">【获得：石皮蛊 ×1】</p>`,
+    choices: [{ text: '继续逛', next: 'market' }],
+    onEnter: function(s) {
+      if ((s.yuanshi || 0) >= 18) {
+        s.yuanshi -= 18;
+        addGu('shipi');
+      }
+    }
+  },
+  
+  shop_mystery: {
+    text: `<p class="narration">角落里的神秘商人裹着黑袍，看不清面容。见你过来，沙哑地说："想知道命运的走向吗？"</p>
+    <p class="narration">"一枚元石，我给你算一卦。"</p>`,
+    choices: [
+      { text: '花1元石算一卦', next: 'divination' },
+      { text: '骗子，走开', next: 'market' }
+    ]
+  },
+  
+  divination: {
+    text: `<p class="narration">你递过一枚元石。神秘商人接过，掏出一副古怪的骨牌摆弄起来。</p>
+    <p class="narration">良久，他缓缓道："命星晦暗，前世有因……你不属于这个世界，对吗？"</p>
+    <p class="narration">你心中一惊！</p>
+    <p class="narration">"莫慌，老朽只是略通推演之术。你的命运……很有趣。有大机缘，也有大凶险。是正是魔，全在你一念之间。"</p>
+    <p class="narration">"去吧，你的路……才刚刚开始。"</p>
+    <p class="narration">说完，神秘商人便不再言语。你满腹疑惑地离开了。</p>`,
+    choices: [{ text: '离开集市', next: 'back_village' }],
+    onEnter: function(s) {
+      s.yuanshi = Math.max(0, (s.yuanshi || 0) - 1);
+    }
+  },
+  
+  zubi_prepare: {
+    text: `<p class="narration">你决定为三个月后的族比做准备。只要能在族比中取得好名次，就能获得大量资源，甚至进入藏经阁高层。</p>
+    <p class="narration">接下来的日子，你一边修炼提升修为，一边打磨蛊虫运用技巧。</p>
+    <p class="narration">时间飞逝，三个月转瞬即逝。你的实力有了长足进步。</p>
+    <p class="important">【修为大幅提升】</p>
+    <p class="narration">族比之日，终于到来了。</p>`,
+    choices: [
+      { text: '参加族比', next: 'zubi_start' }
+    ],
+    onEnter: function(s) {
+      s.realm = Math.max(s.realm, 2);
+      s.xiuweiProgress = 50;
+      gainExp(100);
+      updateUI();
+    }
+  },
+  
+  zubi_start: {
+    text: `<p class="narration">族比擂台上，各族弟子轮番上阵。你一路过关斩将，凭借出色的蛊虫操控技巧，打进了前十。</p>
+    <p class="narration">半决赛，你的对手是——古月赤城。</p>
+    <p class="narration">古月赤城一脸怨毒："上次的账，今天跟你算清楚！"</p>
+    <p class="narration">他竟然已经是二转初阶的修为，比开窍时强了不少。</p>`,
+    choices: [
+      { text: '全力应战', next: 'battle_chicheng' }
+    ]
+  },
+  
+  battle_chicheng: {
+    text: `<p class="narration">你与古月赤城在擂台上展开激战！</p>`,
+    choices: [],
+    battle: { enemy: '古月赤城', hp: 120, atk: 15, onWin: 'zubi_win', onLose: 'zubi_lose' }
+  },
+  
+  zubi_win: {
+    text: `<p class="narration">一番激战，你最终战胜了古月赤城！</p>
+    <p class="narration">擂台下一片哗然。谁也没想到，一个外姓子弟竟然能击败嫡系的古月赤城。</p>
+    <p class="narration">最终，你取得了族比第三名的好成绩。家主古月博亲自为你颁奖，看你的眼神也多了几分赞许。</p>
+    <p class="important">【获得：元石×100，二转蛊虫任选一只】</p>
+    <p class="important">【身份提升：外姓子弟 → 精英弟子】</p>
+    <p class="narration">经此一役，你在古月一族的地位大大提升。但你知道，这只是开始。</p>
+    <p class="narration">青茅山太小了，你的征途，是整个五域大世界。</p>
+    <p class="narration">—— 第一章 · 青茅迷梦 · 完 ——</p>
+    <p class="important" style="text-align: center; margin-top: 30px;">【第一卷结束，更多内容开发中……】</p>
+    <p class="narration" style="text-align: center; color: #6a5a40; margin-top: 20px;">
+      你可以继续在右侧面板探索：炼蛊融合、秘境副本、福地经营、成就收集<br>
+      后续章节敬请期待
+    </p>`,
+    choices: [
+      { text: '自由探索', next: 'free_play' }
+    ],
+    onEnter: function(s) {
+      s.yuanshi = (s.yuanshi || 0) + 100;
+      s.identity = '精英弟子';
+      addGu('leimao');
+      unlockAchievement('dungeon_clear');
+      updateUI();
+    }
+  },
+  
+  zubi_lose: {
+    text: `<p class="narration">你终究还是输了。古月赤城的修为毕竟比你高一线。</p>
+    <p class="narration">但虽败犹荣，你能打到半决赛，已经让所有人刮目相看。</p>
+    <p class="important">【获得：元石×30】</p>
+    <p class="narration">你暗暗下定决心，下次族比，一定要赢回来！</p>
+    <p class="narration">—— 第一章 · 青茅迷梦 · 完 ——</p>
+    <p class="important" style="text-align: center; margin-top: 30px;">【第一卷结束，更多内容开发中……】</p>`,
+    choices: [
+      { text: '自由探索', next: 'free_play' }
+    ],
+    onEnter: function(s) {
+      s.yuanshi = (s.yuanshi || 0) + 30;
+    }
+  },
+  
+  free_play: {
+    text: `<p class="narration">你已踏入蛊修之途，前路漫漫。</p>
+    <p class="narration">你可以通过右侧面板进行各种操作：炼蛊融合提升蛊虫品质、进入秘境副本历练、经营福地积攒资源、收集各种成就……</p>
+    <p class="narration">修为越高，能解锁的内容就越多。冲击六转蛊仙，开辟属于你自己的福地吧！</p>
+    <p class="narration" style="color: #6a5a40; margin-top: 20px;">
+      提示：反复进入副本可获取经验和资源，用两只同阶蛊虫融合有概率升阶，收集特定蛊虫可解锁杀招。
+    </p>`,
+    choices: [
+      { text: '去青茅山副本历练', next: 'dungeon_qingmao' },
+      { text: '炼蛊融合，提升实力', next: 'fusion_guide' },
+      { text: '继续修炼', next: 'cultivate_free' }
+    ]
+  },
+  
+  dungeon_qingmao: {
+    text: `<p class="narration">你再次来到青茅山深处，这里妖兽横行，正是历练的好去处。</p>`,
+    choices: [],
+    dungeon: 'qingmao_shan'
+  },
+  
+  fusion_guide: {
+    text: `<p class="narration">你找了一处安静之地，准备尝试蛊虫融合。</p>
+    <p class="narration">打开右侧「炼蛊」面板，选择两只同阶蛊虫即可尝试融合。同阶融合有概率升阶，特定配方可合成稀有蛊虫。</p>
+    <p class="narration">注意：融合有风险，失败蛊虫会损毁。</p>`,
+    choices: [
+      { text: '我知道了', next: 'free_play' }
+    ]
+  },
+  
+  cultivate_free: {
+    text: `<p class="narration">你沉心修炼，真元缓缓增长。</p>
+    <p class="important">【修为进度+15%】</p>`,
+    choices: [
+      { text: '继续修炼', next: 'cultivate_free' },
+      { text: '结束修炼', next: 'free_play' }
+    ],
+    onEnter: function(s) {
+      s.xiuweiProgress = Math.min(100, (s.xiuweiProgress || 0) + 15);
+      checkLevelUp();
+      updateUI();
+    }
+  },
+  
+  steal_chunqiu_plan: {
+    text: `<p class="narration">你心中萌生了一个大胆的想法——盗取春秋蝉！</p>
+    <p class="narration">如果能掌控时光倒流的力量，就等于拥有了无限重来的机会，任何错误都可以弥补，任何机缘都不会错过。</p>
+    <p class="narration">但这是灭族大罪，一旦被发现，必死无疑。而且以你现在的实力，根本不可能从族中禁地盗走仙蛊。</p>
+    <p class="narration">需要从长计议。至少要等到修为足够高，才有一线可能。</p>
+    <p class="important">【魔道路线开启：春秋蝉之谋】</p>
+    <p class="important" style="text-align: center; margin-top: 30px;">【魔道路线内容开发中……】</p>`,
+    choices: [
+      { text: '暂时隐忍，积蓄力量', next: 'free_play' }
+    ],
+    onEnter: function(s) {
+      s.route = 'demon';
+    }
+  }
+};
+
+// ==================== 游戏状态 ====================
+
+let gameState = {
+  playerName: '方源',
+  identity: '外姓子弟',
+  realm: 0, // 境界索引
+  xiuweiProgress: 10,
+  maxZhenyuan: 100,
+  zhenyuan: 10,
+  qiaoGrade: '下品海窍',
+  mingu: null,
+  guList: [],
+  equipment: { weapon: null, armor: null, accessory: null },
+  bag: [],
+  yuanshi: 10,
+  karma: 0, // 负=正道，正=魔道
+  currentScene: 'start',
+  achievements: [],
+  learnedKillers: [],
+  fusionBonus: 0,
+  paradiseUnlocked: false,
+  paradise: null,
+  dungeonProgress: {},
+  route: 'neutral' // neutral, zheng, mo, san
+};
+
+let fusionSelection = [null, null];
+let currentBattle = null;
+
+// ==================== 游戏逻辑 ====================
+
+function startNewGame() {
+  const name = document.getElementById('player-name').value.trim() || '方源';
+  gameState = {
+    playerName: name,
+    identity: '外姓子弟',
+    realm: 0,
+    xiuweiProgress: 10,
+    maxZhenyuan: 100,
+    zhenyuan: 10,
+    qiaoGrade: '下品海窍',
+    mingu: null,
+    guList: [],
+    equipment: { weapon: null, armor: null, accessory: null },
+    bag: [],
+    yuanshi: 10,
+    karma: 0,
+    currentScene: 'start',
+    achievements: [],
+    learnedKillers: [],
+    fusionBonus: 0,
+    paradiseUnlocked: false,
+    paradise: null,
+    dungeonProgress: {},
+    route: 'neutral'
+  };
+  
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  
+  updateUI();
+  goToScene('start');
+  saveGame();
+}
+
+function loadGame() {
+  const saved = localStorage.getItem('guzhenren_save');
+  if (saved) {
+    gameState = JSON.parse(saved);
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
+    updateUI();
+    goToScene(gameState.currentScene);
+    showToast('存档读取成功');
+  }
+}
+
+function saveGame() {
+  localStorage.setItem('guzhenren_save', JSON.stringify(gameState));
+}
+
+// 检查存档
+window.onload = function() {
+  if (localStorage.getItem('guzhenren_save')) {
+    document.getElementById('continue-btn').style.display = 'inline-block';
+  }
+};
+
+function goToScene(sceneId) {
+  const scene = STORY[sceneId];
+  if (!scene) {
+    console.error('Scene not found:', sceneId);
+    return;
+  }
+  
+  gameState.currentScene = sceneId;
+  
+  if (scene.onEnter) {
+    scene.onEnter(gameState);
+  }
+  
+  // 剧情文本
+  const storyText = document.getElementById('story-text');
+  storyText.innerHTML = scene.text;
+  
+  // 选项
+  const choicesContainer = document.getElementById('choices-container');
+  choicesContainer.innerHTML = '';
+  
+  if (scene.battle) {
+    startBattle(scene.battle);
+  } else if (scene.dungeon) {
+    startDungeon(scene.dungeon);
+  } else {
+    scene.choices.forEach((choice, idx) => {
+      // 检查条件
+      if (choice.requireKarma !== undefined && gameState.karma < choice.requireKarma) {
+        return;
+      }
+      
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = choice.text;
+      btn.onclick = () => {
+        // 恢复真元
+        gameState.zhenyuan = Math.min(gameState.maxZhenyuan, gameState.zhenyuan + 5);
+        goToScene(choice.next);
+        saveGame();
+      };
+      choicesContainer.appendChild(btn);
+    });
+  }
+  
+  // 滚动到顶部
+  document.getElementById('story-area').scrollTop = 0;
+  updateUI();
+}
+
+function addGu(guId) {
+  if (!gameState.guList.includes(guId)) {
+    gameState.guList.push(guId);
+    const gu = GU_DATABASE[guId];
+    showToast(`获得蛊虫：${gu.name}`);
+  }
+  renderGuList();
+}
+
+function addItem(itemId, name, type, desc) {
+  if (!gameState.bag.find(i => i.id === itemId)) {
+    gameState.bag.push({ id: itemId, name, type, desc });
+    showToast(`获得物品：${name}`);
+  }
+  renderBag();
+}
+
+function equipItem(equipId) {
+  const equip = EQUIP_DATABASE[equipId];
+  if (!equip) return;
+  
+  gameState.equipment[equip.slot] = equipId;
+  showToast(`装备：${equip.name}`);
+  renderEquipment();
+}
+
+function gainExp(exp) {
+  gameState.xiuweiProgress = (gameState.xiuweiProgress || 0) + exp / 10;
+  checkLevelUp();
+}
+
+function checkLevelUp() {
+  while (gameState.xiuweiProgress >= 100 && gameState.realm < REALMS.length - 1) {
+    gameState.xiuweiProgress -= 100;
+    gameState.realm++;
+    const realm = REALMS[gameState.realm];
+    showToast(`突破！${realm.name}`);
+    
+    // 境界奖励
+    if (gameState.realm === 4) { // 二转
+      gameState.maxZhenyuan += 50;
+      unlockAchievement('second_turn');
+    }
+    if (gameState.realm === 20) { // 六转蛊仙
+      gameState.paradiseUnlocked = true;
+      gameState.paradise = {
+        level: 1,
+        diqi: 100,
+        lingquan: 10,
+        buildings: []
+      };
+      unlockAchievement('gu_xian');
+      renderParadise();
+    }
+  }
+  updateUI();
+}
+
+function unlockAchievement(achId) {
+  if (!gameState.achievements.includes(achId)) {
+    gameState.achievements.push(achId);
+    const ach = ACHIEVEMENTS.find(a => a.id === achId);
+    if (ach) {
+      showToast(`成就解锁：${ach.name}`);
+    }
+    renderAchievements();
+  }
+}
+
+// ==================== 战斗系统 ====================
+
+function startBattle(battleData) {
+  currentBattle = {
+    enemyName: battleData.enemy,
+    enemyHp: battleData.hp,
+    enemyMaxHp: battleData.hp,
+    enemyAtk: battleData.atk,
+    playerHp: 100 + gameState.realm * 20,
+    playerMaxHp: 100 + gameState.realm * 20,
+    onWin: battleData.onWin,
+    onLose: battleData.onLose || 'battle_lose',
+    log: []
+  };
+  
+  document.getElementById('battle-enemy-name').textContent = battleData.enemy;
+  updateBattleUI();
+  renderBattleActions();
+  addBattleLog(`遭遇了 ${battleData.enemy}！`);
+  
+  document.getElementById('battle-modal').classList.add('active');
+}
+
+function updateBattleUI() {
+  const hpPercent = (currentBattle.enemyHp / currentBattle.enemyMaxHp) * 100;
+  document.getElementById('enemy-hp-bar').style.width = hpPercent + '%';
+  document.getElementById('enemy-hp-text').textContent = 
+    `${Math.max(0, currentBattle.enemyHp)}/${currentBattle.enemyMaxHp}`;
+}
+
+function renderBattleActions() {
+  const container = document.getElementById('battle-actions');
+  container.innerHTML = '';
+  
+  // 攻击蛊
+  gameState.guList.forEach(guId => {
+    const gu = GU_DATABASE[guId];
+    if (gu.damage && gameState.zhenyuan >= gu.cost) {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-small';
+      btn.textContent = `${gu.name}(${gu.cost}真元)`;
+      btn.onclick = () => battleAttack(guId);
+      container.appendChild(btn);
+    }
+  });
+  
+  // 杀招
+  KILLER_SKILLS.forEach(skill => {
+    if (gameState.learnedKillers.includes(skill.id)) {
+      const hasAll = skill.req.every(g => gameState.guList.includes(g));
+      if (hasAll && gameState.zhenyuan >= skill.cost) {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-small btn-primary';
+        btn.textContent = `${skill.name}(${skill.cost})`;
+        btn.onclick = () => battleKiller(skill);
+        container.appendChild(btn);
+      }
+    }
+  });
+  
+  // 普通攻击
+  const atkBtn = document.createElement('button');
+  atkBtn.className = 'btn btn-small';
+  atkBtn.textContent = '普攻';
+  atkBtn.onclick = () => battleNormalAttack();
+  container.appendChild(atkBtn);
+  
+  // 逃跑
+  const fleeBtn = document.createElement('button');
+  fleeBtn.className = 'btn btn-small';
+  fleeBtn.textContent = '逃跑';
+  fleeBtn.onclick = () => battleFlee();
+  container.appendChild(fleeBtn);
+}
+
+function battleAttack(guId) {
+  const gu = GU_DATABASE[guId];
+  gameState.zhenyuan -= gu.cost;
+  
+  const damage = gu.damage + Math.floor(Math.random() * 10);
+  currentBattle.enemyHp -= damage;
+  addBattleLog(`你催动${gu.name}，造成 ${damage} 点伤害！`);
+  
+  checkBattleEnd() || enemyTurn();
+}
+
+function battleKiller(skill) {
+  gameState.zhenyuan -= skill.cost;
+  
+  const damage = skill.damage + Math.floor(Math.random() * 20);
+  currentBattle.enemyHp -= damage;
+  addBattleLog(`你催动杀招【${skill.name}】，造成 ${damage} 点伤害！`);
+  
+  checkBattleEnd() || enemyTurn();
+}
+
+function battleNormalAttack() {
+  const baseAtk = 5 + gameState.realm * 3;
+  const damage = baseAtk + Math.floor(Math.random() * 5);
+  currentBattle.enemyHp -= damage;
+  addBattleLog(`你近身攻击，造成 ${damage} 点伤害。`);
+  
+  checkBattleEnd() || enemyTurn();
+}
+
+function enemyTurn() {
+  const damage = currentBattle.enemyAtk + Math.floor(Math.random() * 5);
+  currentBattle.playerHp -= damage;
+  addBattleLog(`${currentBattle.enemyName}反击，你受到 ${damage} 点伤害。`);
+  
+  if (currentBattle.playerHp <= 0) {
+    addBattleLog('你战败了……');
+    setTimeout(() => {
+      document.getElementById('battle-modal').classList.remove('active');
+      goToScene(currentBattle.onLose);
+    }, 1500);
+  }
+  
+  updateBattleUI();
+  renderBattleActions();
+  updateUI();
+}
+
+function checkBattleEnd() {
+  updateBattleUI();
+  
+  if (currentBattle.enemyHp <= 0) {
+    addBattleLog(`你击败了${currentBattle.enemyName}！`);
+    setTimeout(() => {
+      document.getElementById('battle-modal').classList.remove('active');
+      goToScene(currentBattle.onWin);
+    }, 1500);
+    return true;
+  }
+  return false;
+}
+
+function battleFlee() {
+  if (Math.random() > 0.5) {
+    addBattleLog('你成功逃脱了！');
+    setTimeout(() => {
+      document.getElementById('battle-modal').classList.remove('active');
+      goToScene('back_village');
+    }, 1000);
+  } else {
+    addBattleLog('逃跑失败！');
+    enemyTurn();
+  }
+}
+
+function addBattleLog(text) {
+  currentBattle.log.push(text);
+  const logEl = document.getElementById('battle-log');
+  logEl.innerHTML = currentBattle.log.map(l => `<div>${l}</div>`).join('');
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+// ==================== 副本系统 ====================
+
+function startDungeon(dungeonId) {
+  const dungeon = DUNGEONS.find(d => d.id === dungeonId);
+  if (!dungeon) return;
+  
+  if (gameState.realm < dungeon.reqRealm) {
+    showToast(`修为不足，需要${REALMS[dungeon.reqRealm].name}`);
+    goToScene('free_play');
+    return;
+  }
+  
+  // 随机遇到一个敌人
+  const enemy = dungeon.enemies[Math.floor(Math.random() * dungeon.enemies.length)];
+  
+  currentBattle = {
+    enemyName: enemy.name,
+    enemyHp: enemy.hp,
+    enemyMaxHp: enemy.hp,
+    enemyAtk: enemy.atk,
+    playerHp: 100 + gameState.realm * 20,
+    playerMaxHp: 100 + gameState.realm * 20,
+    expReward: enemy.exp,
+    dungeonReward: dungeon.rewards,
+    onWin: 'dungeon_win',
+    onLose: 'dungeon_lose',
+    log: []
+  };
+  
+  document.getElementById('battle-enemy-name').textContent = enemy.name;
+  updateBattleUI();
+  renderBattleActions();
+  addBattleLog(`在${dungeon.name}遭遇了 ${enemy.name}！`);
+  
+  document.getElementById('battle-modal').classList.add('active');
+}
+
+// 战斗胜利后的副本奖励处理（在goToScene dungeon_win时触发）
+const _origGoToScene = goToScene;
+// 重新定义场景处理
+STORY.dungeon_win = {
+  text: `<p class="narration">你战胜了敌人，收获颇丰。</p>`,
+  choices: [
+    { text: '继续探索', next: 'dungeon_qingmao' },
+    { text: '返回休整', next: 'free_play' }
+  ],
+  onEnter: function(s) {
+    if (currentBattle) {
+      gainExp(currentBattle.expReward || 20);
+      s.yuanshi = (s.yuanshi || 0) + Math.floor(Math.random() * 20) + 5;
+      
+      // 概率掉蛊
+      if (Math.random() < (currentBattle.dungeonReward?.guChance || 0.3)) {
+        const lowGu = ['yueguang', 'shipi', 'xiaoguang', 'huajia', 'wenzi'];
+        const drop = lowGu[Math.floor(Math.random() * lowGu.length)];
+        addGu(drop);
+      }
+      
+      showToast('战斗胜利，获得奖励！');
+      currentBattle = null;
+    }
+  }
+};
+
+STORY.dungeon_lose = {
+  text: `<p class="narration">你寡不敌众，狼狈地逃了回来。</p>
+  <p class="narration">还是太弱了……需要继续提升实力。</p>`,
+  choices: [
+    { text: '闭关修炼', next: 'cultivate_free' },
+    { text: '去集市补给', next: 'market' }
+  ]
+};
+
+STORY.battle_lose = STORY.dungeon_lose;
+
+// ==================== 融合系统 ====================
+
+function selectFusionGu(slotIndex) {
+  // 简单的选择逻辑：列出可用蛊虫
+  const available = gameState.guList.filter(g => {
+    const gu = GU_DATABASE[g];
+    return gu.grade <= 5; // 仙蛊不能融合
+  });
+  
+  if (available.length < 2) {
+    showToast('蛊虫数量不足');
+    return;
+  }
+  
+  // 简化：轮流选
+  const nextGu = available[Math.floor(Math.random() * available.length)];
+  fusionSelection[slotIndex] = nextGu;
+  
+  const gu = GU_DATABASE[nextGu];
+  const slot = document.getElementById(`fusion-slot-${slotIndex + 1}`);
+  slot.innerHTML = `<div class="gu-name quality-${gu.grade}">${gu.name}</div><div class="gu-type">${gu.grade}转</div>`;
+  slot.classList.add('filled');
+}
+
+function doFusion() {
+  if (!fusionSelection[0] || !fusionSelection[1]) {
+    document.getElementById('fusion-result').textContent = '请先选择两只蛊虫';
+    return;
+  }
+  
+  const gu1 = GU_DATABASE[fusionSelection[0]];
+  const gu2 = GU_DATABASE[fusionSelection[1]];
+  
+  if (gu1.grade !== gu2.grade) {
+    document.getElementById('fusion-result').innerHTML = 
+      '<span style="color:#c85050;">失败：两只蛊虫品阶不同，无法融合</span>';
+    return;
+  }
+  
+  // 检查配方
+  const key1 = `${fusionSelection[0]}+${fusionSelection[1]}`;
+  const key2 = `${fusionSelection[1]}+${fusionSelection[0]}`;
+  const recipe = FUSION_RECIPES[key1] || FUSION_RECIPES[key2];
+  
+  let successRate = 0.4 + (gameState.fusionBonus || 0);
+  let resultGu = null;
+  let resultName = '';
+  
+  if (recipe) {
+    successRate = recipe.rate + (gameState.fusionBonus || 0);
+    resultGu = recipe.result;
+    resultName = recipe.name;
+  } else {
+    // 随机升阶
+    if (gu1.grade < 5) {
+      resultName = `随机${gu1.grade + 1}转蛊虫`;
+    }
+  }
+  
+  // 执行融合
+  const success = Math.random() < successRate;
+  
+  // 移除原材料
+  gameState.guList = gameState.guList.filter(g => g !== fusionSelection[0]);
+  if (fusionSelection[0] !== fusionSelection[1]) {
+    gameState.guList = gameState.guList.filter(g => g !== fusionSelection[1]);
+  } else {
+    // 同种两只，只移除一只的话需要特殊处理
+    // 简化：移除第一个出现的
+    const idx = gameState.guList.indexOf(fusionSelection[1]);
+    if (idx > -1) gameState.guList.splice(idx, 1);
+  }
+  
+  if (success) {
+    if (resultGu) {
+      addGu(resultGu);
+    } else {
+      // 随机升阶蛊
+      const gradeUp = gu1.grade + 1;
+      const pool = Object.entries(GU_DATABASE).filter(([k, v]) => v.grade === gradeUp);
+      if (pool.length > 0) {
+        const [rid, rgu] = pool[Math.floor(Math.random() * pool.length)];
+        addGu(rid);
+        resultName = rgu.name;
+      }
+    }
+    document.getElementById('fusion-result').innerHTML = 
+      `<span style="color:#50c850;">融合成功！获得：${resultName}</span>`;
+  } else {
+    document.getElementById('fusion-result').innerHTML = 
+      '<span style="color:#c85050;">融合失败！蛊虫全部损毁</span>';
+  }
+  
+  // 重置选择
+  fusionSelection = [null, null];
+  document.getElementById('fusion-slot-1').innerHTML = '点击选择';
+  document.getElementById('fusion-slot-1').classList.remove('filled');
+  document.getElementById('fusion-slot-2').innerHTML = '点击选择';
+  document.getElementById('fusion-slot-2').classList.remove('filled');
+  
+  renderGuList();
+  updateUI();
+  saveGame();
+}
+
+// ==================== UI更新 ====================
+
+function updateUI() {
+  const realm = REALMS[gameState.realm] || REALMS[0];
+  
+  document.getElementById('display-name').textContent = gameState.playerName;
+  document.getElementById('player-identity').textContent = gameState.identity;
+  
+  const realmEl = document.getElementById('player-realm');
+  realmEl.textContent = realm.name;
+  realmEl.className = `stat-value quality-${realm.grade}`;
+  
+  document.getElementById('xiuwei-bar').style.width = gameState.xiuweiProgress + '%';
+  document.getElementById('zhenyuan-text').textContent = `${Math.floor(gameState.zhenyuan)}/${gameState.maxZhenyuan}`;
+  document.getElementById('zhenyuan-bar').style.width = (gameState.zhenyuan / gameState.maxZhenyuan * 100) + '%';
+  document.getElementById('qiao-grade').textContent = gameState.qiaoGrade;
+  
+  // 本命蛊
+  if (gameState.mingu) {
+    const mingu = GU_DATABASE[gameState.mingu];
+    document.getElementById('mingu-display').innerHTML = 
+      `<div class="gu-name quality-${mingu.grade}">${mingu.name}</div>
+       <div class="gu-type">${mingu.type}型 · ${mingu.grade}转</div>`;
+  }
+  
+  renderGuList();
+  renderEquipment();
+  renderBag();
+  renderKillers();
+  renderDungeons();
+  renderParadise();
+  renderAchievements();
+}
+
+function renderGuList() {
+  const container = document.getElementById('gu-list');
+  container.innerHTML = '';
+  
+  gameState.guList.forEach(guId => {
+    const gu = GU_DATABASE[guId];
+    if (!gu) return;
+    
+    const div = document.createElement('div');
+    div.className = 'gu-item';
+    div.innerHTML = `
+      <div class="gu-name quality-${gu.grade}">${gu.name}</div>
+      <div class="gu-type">${gu.type} · ${gu.grade}转</div>
+    `;
+    div.title = gu.desc;
+    container.appendChild(div);
+  });
+}
+
+function renderEquipment() {
+  const slots = ['weapon', 'armor', 'accessory'];
+  const slotNames = { weapon: '武器', armor: '防具', accessory: '饰品' };
+  
+  slots.forEach(slot => {
+    const el = document.getElementById(`equip-${slot}`);
+    const equipId = gameState.equipment[slot];
+    
+    if (equipId && EQUIP_DATABASE[equipId]) {
+      const equip = EQUIP_DATABASE[equipId];
+      el.className = 'equip-slot';
+      el.innerHTML = `${slotNames[slot]}：<span class="quality-${equip.quality}">${equip.name}</span>`;
+    } else {
+      el.className = 'equip-slot empty';
+      el.textContent = `${slotNames[slot]}：空`;
+    }
+  });
+}
+
+function renderBag() {
+  const container = document.getElementById('bag-list');
+  container.innerHTML = '';
+  
+  // 元石
+  const yuanshiDiv = document.createElement('div');
+  yuanshiDiv.className = 'item-card';
+  yuanshiDiv.innerHTML = `
+    <div class="item-card-header">
+      <span class="quality-2">元石</span>
+      <span>×${gameState.yuanshi || 0}</span>
+    </div>
+    <div class="item-desc">蛊修世界的通用货币与修炼资源</div>
+  `;
+  container.appendChild(yuanshiDiv);
+  
+  gameState.bag.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'item-card';
+    div.innerHTML = `
+      <div class="item-card-header">
+        <span>${item.name}</span>
+        <span style="font-size: 0.75rem; color: #6a5a40;">${item.type}</span>
+      </div>
+      <div class="item-desc">${item.desc}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderKillers() {
+  const container = document.getElementById('killer-list');
+  container.innerHTML = '';
+  
+  KILLER_SKILLS.forEach(skill => {
+    const learned = gameState.learnedKillers.includes(skill.id);
+    const hasAll = skill.req.every(g => gameState.guList.includes(g));
+    
+    const div = document.createElement('div');
+    div.className = 'killer-card';
+    div.style.opacity = learned ? '1' : '0.5';
+    
+    const reqText = skill.req.map(g => {
+      const gu = GU_DATABASE[g];
+      return gu ? gu.name : g;
+    }).join(' + ');
+    
+    div.innerHTML = `
+      <div class="killer-name">${skill.name} ${learned ? '' : '(未习得)'}</div>
+      <div class="killer-req">所需：${reqText}</div>
+      <div class="killer-req">消耗：${skill.cost}真元</div>
+      <div class="killer-desc">${skill.desc}</div>
+      ${hasAll && !learned ? '<button class="btn btn-small" style="margin-top:8px;" onclick="learnKiller(\'' + skill.id + '\')">参悟</button>' : ''}
+    `;
+    container.appendChild(div);
+  });
+}
+
+function learnKiller(skillId) {
+  if (!gameState.learnedKillers.includes(skillId)) {
+    gameState.learnedKillers.push(skillId);
+    const skill = KILLER_SKILLS.find(k => k.id === skillId);
+    showToast(`习得杀招：${skill.name}`);
+    unlockAchievement('first_killer');
+    renderKillers();
+    saveGame();
+  }
+}
+
+function renderDungeons() {
+  const container = document.getElementById('dungeon-list');
+  container.innerHTML = '';
+  
+  DUNGEONS.forEach(dungeon => {
+    const unlocked = gameState.realm >= dungeon.reqRealm;
+    
+    const div = document.createElement('div');
+    div.className = 'dungeon-card';
+    div.style.opacity = unlocked ? '1' : '0.5';
+    
+    div.innerHTML = `
+      <div class="dungeon-name">${dungeon.name}</div>
+      <div class="dungeon-info">${dungeon.desc}</div>
+      <div class="dungeon-info">需求修为：${REALMS[dungeon.reqRealm].name}</div>
+      ${unlocked ? '<button class="btn btn-small btn-primary" onclick="enterDungeon(\'' + dungeon.id + '\')">进入</button>' : '<span style="color:#6a5a40; font-size:0.8rem;">修为不足</span>'}
+    `;
+    container.appendChild(div);
+  });
+}
+
+function enterDungeon(dungeonId) {
+  startDungeon(dungeonId);
+}
+
+function renderParadise() {
+  if (gameState.paradiseUnlocked) {
+    document.getElementById('paradise-locked').style.display = 'none';
+    document.getElementById('paradise-content').style.display = 'block';
+    
+    const levels = ['下品福地', '中品福地', '上品福地', '极品福地', '仙级洞天'];
+    document.getElementById('paradise-level').textContent = levels[Math.min(gameState.paradise.level - 1, 4)];
+    document.getElementById('resource-diqi').textContent = gameState.paradise.diqi;
+    document.getElementById('resource-lingquan').textContent = gameState.paradise.lingquan;
+    
+    const buildings = document.getElementById('paradise-buildings');
+    buildings.innerHTML = `
+      <div class="building-card">灵泉<br><span style="font-size:0.7rem; color:#6a5a40;">Lv.${gameState.paradise.level}</span></div>
+      <div class="building-card">药园<br><span style="font-size:0.7rem; color:#6a5a40;">未建造</span></div>
+      <div class="building-card">炼蛊室<br><span style="font-size:0.7rem; color:#6a5a40;">未建造</span></div>
+      <div class="building-card">兽栏<br><span style="font-size:0.7rem; color:#6a5a40;">未建造</span></div>
+    `;
+  }
+}
+
+function renderAchievements() {
+  const container = document.getElementById('achievement-list');
+  container.innerHTML = '';
+  
+  ACHIEVEMENTS.forEach(ach => {
+    const unlocked = gameState.achievements.includes(ach.id);
+    
+    const div = document.createElement('div');
+    div.className = 'achievement-card' + (unlocked ? ' unlocked' : '');
+    div.innerHTML = `
+      <div class="achievement-name ${unlocked ? 'quality-5' : ''}">${unlocked ? ach.name : '???'}</div>
+      <div class="achievement-desc">${unlocked ? ach.desc : '未解锁'}</div>
+      ${unlocked ? `<div class="achievement-desc" style="color:#8b6914;">奖励：${ach.reward}</div>` : ''}
+    `;
+    container.appendChild(div);
+  });
+}
+
+// ==================== 辅助功能 ====================
+
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tabName).classList.add('active');
+}
+
+function showToast(msg) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function showModal(title, content) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-content').innerHTML = content;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+
+// ==================== 初始化 ====================
+
+// 检查存档
+window.addEventListener('load', function() {
+  if (localStorage.getItem('guzhenren_save')) {
+    document.getElementById('continue-btn').style.display = 'inline-block';
+  }
+});
+</script>
+</body>
+</html>
